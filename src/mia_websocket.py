@@ -5,7 +5,8 @@ import json
 import time
 
 # URL del servidor Rails SysQB en la Mac / ruta del WebSocket (Action Cable) declarada en config/environments/development.rb
-URL = "ws://192.168.1.129:3000/cable" 
+#URL = "ws://192.168.1.129:3000/cable" 
+URL = "wss://shielded-taiga-04156.herokuapp.com/cable"
 
 class WebSocketCliente:
     def __init__(self, gui, contador):
@@ -25,6 +26,7 @@ class WebSocketCliente:
         asyncio.run(self._ciclo_infinito())
 
     async def _ciclo_infinito(self):
+        #async with websockets.connect(self.url, ping_interval=20, ping_timeout=10) as websocket:
         async with websockets.connect(self.url, ping_interval=20, ping_timeout=10) as websocket:
             
             # Mensaje para suscribirse al canal "DeviceChannel"

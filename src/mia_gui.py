@@ -1,4 +1,6 @@
 import tkinter as tk
+from tkinter import PhotoImage
+from PIL import Image, ImageTk  # Importar Pillow par
 from tkinter import scrolledtext
 from mia_websocket import WebSocketCliente
 from mia_contadores import ContadorPiezas
@@ -8,11 +10,22 @@ import asyncio
 class MiaGui:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("MIA - Mesa de Inspección Automatizada versión   /   ßeta 1.0")
+
+        self.root.title("Wong Instruments             MIA - Simulación            Ver_1.0")
+        
+        # Cargar y redimensionar la imagen del logo
+        original_logo = Image.open("wi_logo_1.png")  # Reemplaza con la ruta de tu imagen
+        resized_logo = original_logo.resize((60, 60))  # Cambia el tamaño a 100x100 píxeles
+        self.logo = ImageTk.PhotoImage(resized_logo)  # Convertir a un formato compatible con Tkinter
+        # Crear un Label para mostrar el logo
+        logo_label = tk.Label(self.root, image=self.logo)
+        logo_label.pack(side=tk.LEFT, pady=5, padx=10)  # Coloca el logo
+        
         self.contador = ContadorPiezas(self)
         self.client = WebSocketCliente(self, self.contador) 
         self.create_widgets()
         self.inicia_conteo = False
+        self.detiene_conteo = False
 
     def create_widgets(self):
         # Frame principal para organizar text areas y el frame de variables
@@ -82,9 +95,17 @@ class MiaGui:
         self.pza_ng_entry = tk.Entry(pza_ng_container, font=("Arial", 14), width=8)
         self.pza_ng_entry.pack(side=tk.RIGHT, padx=5)
         
-        # Botón Disconnect a la extrema izquierda
-        self.conteo_button = tk.Button(variable_frame, text="INICIA CONTEO", command=self.inicia_conteo)
-        self.conteo_button.pack(side=tk.BOTTOM, pady=10, anchor=tk.CENTER)  # Mover a la parte inferior y centrar
+        # Crear un contenedor para los botones
+        conteo_buttons_frame = tk.Frame(variable_frame)
+        conteo_buttons_frame.pack(side=tk.BOTTOM, pady=10, anchor=tk.CENTER)
+
+        # Botón para iniciar el conteo
+        self.inic_conteo_button = tk.Button(conteo_buttons_frame, text="INIC", command=self.inicia_conteo)
+        self.inic_conteo_button.pack(side=tk.LEFT, padx=5)  # Alinear a la izquierda con un espacio entre botones
+
+        # Botón para detener el conteo
+        self.detiene_conteo_button = tk.Button(conteo_buttons_frame, text="ALTO/CONTINUA", command=self.detiene_conteo)
+        self.detiene_conteo_button.pack(side=tk.LEFT, padx=5)  # Alinear a la izquierda con un espacio entre botones
 
         # Crear un frame para los botones
         button_frame = tk.Frame(self.root)
@@ -122,6 +143,10 @@ class MiaGui:
     def inicia_conteo(self):
         self.inicia_conteo = True
         self.contador.inicia_contadores()
+
+    def detiene_conteo(self):
+        self.detiene_conteo = not self.detiene_conteo
+
 
     def connect_websocket(self):
         self.client.connect()
