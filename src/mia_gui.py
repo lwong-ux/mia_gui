@@ -104,7 +104,7 @@ class MiaGui:
         self.inic_conteo_button.pack(side=tk.LEFT, padx=5)  # Alinear a la izquierda con un espacio entre botones
 
         # Botón para detener el conteo
-        self.detiene_conteo_button = tk.Button(conteo_buttons_frame, text="ALTO/CONTINUA", command=self.detiene_conteo)
+        self.detiene_conteo_button = tk.Button(conteo_buttons_frame, text="ALTO/CONTINÚA", command=self.detiene_conteo)
         self.detiene_conteo_button.pack(side=tk.LEFT, padx=5)  # Alinear a la izquierda con un espacio entre botones
 
         # Crear un frame para los botones
