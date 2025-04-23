@@ -5,16 +5,18 @@ import json
 import time
 
 # URL del servidor Rails SysQB en la Mac / ruta del WebSocket (Action Cable) declarada en config/environments/development.rb
-#URL = "ws://192.168.1.129:3000/cable" 
-URL = "wss://shielded-taiga-04156.herokuapp.com/cable"
+URL_LA_PAZ = "ws://192.168.1.129:3000/cable" 
+URL_SIMULADOR = "wss://shielded-taiga-04156.herokuapp.com/cable"
 
 class WebSocketCliente:
     def __init__(self, gui, contador):
-        self.url = URL
+        self.url = URL_LA_PAZ
         self.gui = gui
         self.contador = contador
         self.ws = None
         self.is_running = False
+        self.mesa_id = "MIA-01"
+        
     
 
     def connect(self):
@@ -29,10 +31,11 @@ class WebSocketCliente:
         #async with websockets.connect(self.url, ping_interval=20, ping_timeout=10) as websocket:
         async with websockets.connect(self.url, ping_interval=20, ping_timeout=10) as websocket:
             
-            # Mensaje para suscribirse al canal "DeviceChannel"
+            # Mensaje para suscribirse al canal "MiaChannel"
+            self.mesa_id = f"MIA-{str(self.gui.lee_mesa()).zfill(2)}"  #Convierte a cadena de dos dígitos con cero al inicio y prefijo "MIA-"
             mensaje_suscribir = {
                 "command": "subscribe",
-                "identifier": json.dumps({"channel": "DeviceChannel"})
+                "identifier": json.dumps({"channel": "MiaChannel", "mia_id": self.mesa_id})
             }
             await websocket.send(json.dumps(mensaje_suscribir))
             print("✅ Conectado al WebSocket de Rails desde la Raspberry Pi")
@@ -57,10 +60,10 @@ class WebSocketCliente:
                     ng = self.contador.lee_ng()
                     mesa = self.gui.lee_mesa()
                     
-                    # Envía datos periódicamente al canal "DeviceChannel" de Rails
+                    # Envía datos periódicamente al canal "MiaChannel" de Rails
                     data = {
                         "command": "message",
-                        "identifier": json.dumps({"channel": "DeviceChannel"}),
+                        "identifier": json.dumps({"channel": "MiaChannel", "mia_id": self.mesa_id}),
                         "data": json.dumps({"mesa": mesa, "piezas_ok": ok, "piezas_ng": ng})
                     }
                     await websocket.send(json.dumps(data))
@@ -77,7 +80,7 @@ class WebSocketCliente:
     def _send_subscription_message(self):
         subscription_message = {
             "command": "subscribe",
-            "identifier": json.dumps({"channel": "DeviceChannel"})
+            "identifier": json.dumps({"channel": "MiaChannel"})
         }
         self.ws.send(json.dumps(subscription_message))
 
@@ -86,7 +89,7 @@ class WebSocketCliente:
         self.ng = self.ok // 9
         data = {
             "command": "message",
-            "identifier": json.dumps({"channel": "DeviceChannel"}),
+            "identifier": json.dumps({"channel": "MiaChannel"}),
             "data": json.dumps({"mesa": 3, "piezas_ok": self.ok, "piezas_ng": self.ng})
         }
         self.ws.send(json.dumps(data))

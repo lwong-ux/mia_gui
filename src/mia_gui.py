@@ -26,6 +26,7 @@ class MiaGui:
         self.create_widgets()
         self.inicia_conteo = False
         self.detiene_conteo = False
+        
 
     def create_widgets(self):
         # Frame principal para organizar text areas y el frame de variables
@@ -138,7 +139,10 @@ class MiaGui:
         self.pza_mesa_entry.insert(0, mesa)
     
     def lee_mesa(self):
-        return self.mesa_entry.get()
+        try:
+            return int(self.mesa_entry.get().strip())  # Convierte a entero y elimina espacios en blanco
+        except ValueError:
+            return 1  # Valor predeterminado si no es un número válido
     
     def inicia_conteo(self):
         self.inicia_conteo = True
